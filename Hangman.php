@@ -150,11 +150,10 @@ class Hangman {
 	// Display the current tries
 	public function display_tries() {
 		$dump  = "<p class='tries'>";
-		$dump .= "Il reste ";
 		$dump .= "<span class='try try-".$this->get_remaining_tries()."'>";
 		$dump .= $this->get_remaining_tries();
 		$dump .= "</span>";
-		$dump .= " essais.";
+		$dump .= " tries remaining.";
 		$dump .= "</p>";
 		return $dump;
 	}

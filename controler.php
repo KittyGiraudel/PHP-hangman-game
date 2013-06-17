@@ -15,5 +15,5 @@ if(isset($_GET['l']))
 if(isset($_GET['destroy']))
 	session_destroy();
 
-header('location:/pendu/');
+header('location:/hangman/');
 ?>
