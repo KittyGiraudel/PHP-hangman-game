@@ -1,0 +1,82 @@
+* {
+	box-sizing: border-box;
+}
+
+html {
+	font: 62.5%/1.35 Helvetica, Arial, sans-serif;
+	color: #333;
+}
+
+body {
+	font-size: 1.6em;
+	max-width: 960px;
+	width: 100%;
+	margin: 0 auto;
+	padding: 1em;
+}
+
+.alphabet {
+	list-style: none;
+	padding: 0;
+	text-align: center;	
+}
+
+.alphabet li {
+	display: inline-block;
+}
+
+.alphabet a {
+	text-decoration: none;
+	padding: .5em 1em;
+	border: 1px solid rgba(0,0,0,0.1);
+	color: #555;
+	display: block;
+	margin: .5em;
+	text-transform: uppercase;
+	width: 3em;
+	text-align: center;
+	font-size: 1.5em;
+}
+
+.alphabet a:hover {
+	border-color: deepskyblue;
+}
+
+.tried a {
+	color: white;
+	background: deepskyblue;
+}
+
+.current {
+	text-align: center;
+	letter-spacing: .5em;
+	text-transform: uppercase;
+	font-size: 3em;
+	clear: both;
+}
+
+.tries {
+	text-align: center;
+	font-size: 1.5em;
+}
+
+.try {
+	display: inline-block;
+	text-shadow: 0 1px rgba(0,0,0,0.2);
+}
+
+.try-1 { color: red; }
+.try-2 { color: orangered; }
+.try-3 { color: orange; }
+.try-4 { color: yellow; }
+.try-5 { color: lightgreen; }
+.try-6 { color: green; }
+
+.score {
+	float: left;
+	margin: 0;
+}
+
+.restart {
+	float: right;
+}
