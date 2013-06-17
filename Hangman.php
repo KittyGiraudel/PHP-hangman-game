@@ -4,14 +4,15 @@ class Hangman {
 
 	// Constants
 	private $controler  = "controler.php";
-	private $dictionary = "dictionary.txt";
-	private $alphabet   = array('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '-');
-	private $nbWords    = 0;
+	private $alphabet   = array();
+	private $urlAPI     = "http://api.wordnik.com/v4/words.json/randomWords?hasDictionaryDef=false&minCorpusCount=0&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=4&maxLength=-1&limit=";
+	private $apikey     = "c2e6bbf2be425a4b4d30201da7906023ae280054e4b48876a";
 	
 	// Session-related	
 	private $maxTries   = 5;
 	private $victories  = 0;
-	private $games      = 0;
+	private $gamesDone  = 0;
+	private $words      = null;
 
 	// Game-related
 	private $word       = null;
@@ -21,45 +22,40 @@ class Hangman {
 
 	// Constructor
 	// $max = number of tries
-	public function __construct($max = 5) {
-		$this->maxTries = $max;
-		$this->nbWords  = intval(exec('wc -l ' . $this->dictionary));  // Number of lines
-	}
+	public function __construct($games = 20, $max = 5) {
+		$this->maxTries  = $max;
+		$this->words = json_decode($this->get_data($this->urlAPI.$games, array('api_key: '.$this->apikey)));
 
-	// Get a new word from file
-	private function get_word() {
-		$file   = file($this->dictionary);      			// Open file
-		$picked = rand(0, $this->nbWords);          // Pick a line
-		$word   = trim(strtolower($file[$picked])); // Get the word
-		return $word;
+		// Fill the alphabet
+		for($i = 65; $i < 91; $i++){
+		    $this->alphabet[] = chr($i); }
+			$this->alphabet[] = "-";
 	}
 
 	// Create a new word
 	private function new_word() {
-		$word = $this->get_word(); // Pick new word
+		$word = $this->words[$this->gamesDone]->word;
 
 		// Array all the things!
 		$this->word    = array();
 		$this->current = array();
 		$this->tried   = array();	
 		
+		// Fill the arrays
 		for($i = 0, $len = strlen($word); $i < $len; $i++) {
-			// Fill the arrays
-			array_push($this->word, $word[$i]);
-			array_push($this->current, '_');
+			$this->word[]    = strtoupper($word[$i]);
+			$this->current[] = '_';
 		}
 
 		// Show first letter
 		$this->current[0] = $this->word[0];
-
-		return $word;
 	}
 
 	// Enable a new game session
 	public function new_game() {
-		$this->games++;    // Increment number of games
-		$this->new_word(); // Pick new word
-		$this->tries = 0;  // Reset number of tries
+		$this->new_word();  // Pick new word
+		$this->gamesDone++; // Increment number of games
+		$this->tries = 0;   // Reset number of tries
 	}
 
 	// Check letter and do what needs to be done
@@ -72,7 +68,7 @@ class Hangman {
 		} else {
 			// If not tried yet, push it
 			if(!in_array($letter, $this->tried)) {
-				array_push($this->tried, $letter);
+				$this->tried[] = $letter;
 
 				// If wrong guess, increment tries
 				if(!in_array($letter, $this->word))
@@ -142,7 +138,10 @@ class Hangman {
 		$dump  = "<p class='score'>";
 		$dump .= $this->victories;
 		$dump .= " / ";
-		$dump .= $this->games;
+		$dump .= $this->gamesDone;
+		$dump .= " - ";
+		$dump .= count($this->words) - $this->gamesDone;
+		$dump .= " games left.";
 		$dump .= "</p>";
 		return $dump;
 	}
@@ -162,6 +161,16 @@ class Hangman {
 	public function display_reset() { 
 		return "<a class='restart' href='".$this->controler."?destroy=true'>Restart</a>";
 	}
-}
 
-?>
+	private function get_data($url, $headers = null) {
+		$ch = curl_init();
+		$timeout = 5;
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		$data = curl_exec($ch);
+		curl_close($ch);
+		return $data;
+	}
+}

@@ -8,7 +8,7 @@ session_start();
 
 // If no game initialized yet, do it
 if(!isset($_SESSION['hangman'])) {
-	$_SESSION['hangman'] = new Hangman(5); // Number of tries
+	$_SESSION['hangman'] = new Hangman(20, 5); // Number of tries
 	$_SESSION['hangman']->new_game();
 }
 

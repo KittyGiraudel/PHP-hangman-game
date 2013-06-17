@@ -21,7 +21,7 @@ var s, hangman = {
 			if(item !== false) {
 				var el = document.querySelectorAll('.alphabet a');
 				for(var i = 0, len = el.length; i < len; i++) {
-					if(el[i].innerHTML === item[0]) {
+					if(el[i].innerHTML === item[0].toUpperCase()) {
 						window.location.href = el[i].href;
 						return;
 					}
