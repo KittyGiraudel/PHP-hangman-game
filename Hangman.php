@@ -4,9 +4,9 @@ class Hangman {
 
 	// Constants
 	private $controler  = "controler.php";
+	private $APIurl     = "http://api.wordnik.com/v4/words.json/randomWords?hasDictionaryDef=false&minCorpusCount=0&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=4&maxLength=-1&limit=";
+	private $APIkey     = "c2e6bbf2be425a4b4d30201da7906023ae280054e4b48876a";
 	private $alphabet   = array();
-	private $urlAPI     = "http://api.wordnik.com/v4/words.json/randomWords?hasDictionaryDef=false&minCorpusCount=0&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=4&maxLength=-1&limit=";
-	private $apikey     = "c2e6bbf2be425a4b4d30201da7906023ae280054e4b48876a";
 	
 	// Session-related	
 	private $maxTries   = 5;
@@ -21,10 +21,16 @@ class Hangman {
 	private $tries      = 0;		
 
 	// Constructor
-	// $max = number of tries
+	// $games = number of games
+	// $max   = number of tries for a word
 	public function __construct($games = 20, $max = 5) {
-		$this->maxTries  = $max;
-		$this->words = json_decode($this->get_data($this->urlAPI.$games, array('api_key: '.$this->apikey)));
+
+		// Get words from Wordnik API
+		$words = $this->get_data($this->APIurl.$games, array('api_key: '.$this->APIkey));
+		
+		// Set variables
+		$this->maxTries = $max;
+		$this->words    = json_decode($words);
 
 		// Fill the alphabet
 		for($i = 65; $i < 91; $i++){
@@ -34,6 +40,7 @@ class Hangman {
 
 	// Create a new word
 	private function new_word() {
+		// A whole new woooooord...
 		$word = $this->words[$this->gamesDone]->word;
 
 		// Array all the things!
@@ -63,9 +70,10 @@ class Hangman {
 	public function check_letter($letter) {
 
 		// If not an allowed character, break
-		if(!in_array($letter, $this->alphabet)) {
+		if(!in_array($letter, $this->alphabet))
 			return false;
-		} else {
+		
+		else {
 			// If not tried yet, push it
 			if(!in_array($letter, $this->tried)) {
 				$this->tried[] = $letter;
@@ -91,6 +99,8 @@ class Hangman {
 
 	// Check current game status
 	private function check_game() {
+		
+		// Compare word and guess
 		$done = $this->word === $this->current;
 
 		// If word guessed
@@ -101,7 +111,7 @@ class Hangman {
 
 		// If 0 try left
 		if($this->tries >= $this->maxTries)
-			$this->new_game(); // New game
+			$this->new_game();  // Launch new game
 
 		return $done;
 	}
@@ -162,13 +172,14 @@ class Hangman {
 		return "<a class='restart' href='".$this->controler."?destroy=true'>Restart</a>";
 	}
 
+	// Make a CURL
 	private function get_data($url, $headers = null) {
 		$ch = curl_init();
 		$timeout = 5;
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		if($headers !== null) curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		$data = curl_exec($ch);
 		curl_close($ch);
 		return $data;
